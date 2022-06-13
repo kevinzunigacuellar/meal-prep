@@ -24,10 +24,22 @@ const food = [
   },
 ]
 
+interface Meal {
+  name: string
+  weight: number
+  calories: number
+}
+
+interface FoodProps {
+  name: string
+  calPerGram: number
+  setMeal: React.Dispatch<React.SetStateAction<Meal[]>>
+}
+
 const Home: NextPage = () => {
   const [filter, setFilter] = useState('')
   const [foodList, setfoodList] = useState(food)
-  const [meal, setMeal] = useState([])
+  const [meal, setMeal] = useState<Meal[]>([])
   const [units, setUnits] = useState('g')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,12 +64,12 @@ const Home: NextPage = () => {
     return meal.reduce((acc, curr) => acc + curr.calories, 0)
   }, [meal])
 
-  const handleSelect = e => {
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setUnits(e.target.value)
   }
   return (
     <div>
-      <UnitsContext.Provider value={{ units }}>
+      <UnitsContext.Provider value={units}>
         <input type="text" onChange={handleChange} />
         <select name="units" id="units" onChange={handleSelect}>
           <option value="g">grams</option>
@@ -90,9 +102,9 @@ const Home: NextPage = () => {
   )
 }
 
-const Food = ({ name, calPerGram, setMeal }: any) => {
+const Food = ({ name, calPerGram, setMeal }: FoodProps) => {
   const [weight, setWeight] = useState(100)
-  const { units } = useContext(UnitsContext)
+  const units = useContext(UnitsContext)
 
   const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setWeight(Number(e.target.value))
@@ -106,15 +118,13 @@ const Food = ({ name, calPerGram, setMeal }: any) => {
   }, [weight, calPerGram, units])
 
   const addToMeal = () => {
-    setMeal(meal => [...meal, { name, weight, calories }])
+    setMeal((meal: Meal[]) => [...meal, { name, weight, calories }])
   }
   return (
     <div>
       <p>{name}</p>
       <input type="number" value={weight} onChange={handleWeightChange} />
-      <p>
-        {weight} {units}
-      </p>
+      <p>{`${weight} ${units}`}</p>
       <p>{calories}cal</p>
       <button onClick={addToMeal}>add to meal</button>
     </div>
