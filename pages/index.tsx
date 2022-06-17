@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, FunctionComponent, Dispatch, SetStateAction } from 'react'
 import FoodCard from '../components/FoodCard'
 import { UnitsContext } from '../context/UnitsContext'
 
@@ -37,14 +37,9 @@ const gramsToOunces = (grams: number) => grams / 28.3495
 const OuncesToGrams = (ounces: number) => ounces * 28.3495
 
 const Home: NextPage = () => {
-  const [filter, setFilter] = useState('')
-  const [foodList, setfoodList] = useState(food)
   const [meal, setMeal] = useState<Meal[]>([])
   const [units, setUnits] = useState('g')
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilter(e.target.value.toLowerCase())
-  }
   // todo: fix unit converter in meals (hacky fix)
   useEffect(() => {
     if (units === 'oz') {
@@ -78,44 +73,60 @@ const Home: NextPage = () => {
     setUnits(e.target.value)
   }
   return (
-    <div>
-      <UnitsContext.Provider value={{ units }}>
-        <input type="text" onChange={handleChange} />
+    <UnitsContext.Provider value={{ units }}>
+      <div className="lg:max-w-6xl mx-auto">
         <select name="units" id="units" onChange={handleSelect}>
           <option value="g">grams</option>
           <option value="oz">ounces</option>
         </select>
-        <p>{units}</p>
-        <pre>{filter}</pre>
-        <ul>
-          {foodList
-            .filter(food => food.name.toLowerCase().includes(filter))
-            .map((food, i) => (
-              <FoodCard
-                key={i}
-                name={food.name}
-                calPerGram={food.caloriesPerGram}
-                setMeal={setMeal}
-              />
-            ))}
-        </ul>
-        <h1>Meal:</h1>
-        <p>total calories: {totalCalories}cal</p>
-
-        <div>
-          {meal.map(meal => (
-            <div key={meal.name}>
-              <div>{meal.name}</div>
-              <div>
-                {meal.weight.toFixed(2)} {units}
-              </div>
-              <div>{meal.calories}cal</div>
+        <div className="grid grid-cols-3 gap-6">
+          <Aside setMeal={setMeal} />
+          <div className="col-span-2 border rounded-lg">
+            <h1>Meal:</h1>
+            <p>total calories: {totalCalories}cal</p>
+            <div>
+              {meal.map(meal => (
+                <div key={meal.name}>
+                  <div>{meal.name}</div>
+                  <div>
+                    {meal.weight.toFixed(2)} {units}
+                  </div>
+                  <div>{meal.calories}cal</div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-      </UnitsContext.Provider>
-    </div>
+      </div>
+    </UnitsContext.Provider>
   )
 }
 
+const Aside = ({ setMeal }: { setMeal: Dispatch<SetStateAction<Meal[]>> }) => {
+  const [filter, setFilter] = useState('')
+  const [foodList, setFoodList] = useState(food)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter(e.target.value.toLowerCase())
+  }
+
+  return (
+    <div className="">
+      <h1>Search any food</h1>
+      <div className="grid grid-cols-1 gap-6">
+        <input type="text" onChange={handleChange} value={filter} />
+        {foodList
+          .filter(food => food.name.toLowerCase().includes(filter))
+          .map((food, i) => (
+            <FoodCard
+              key={i}
+              name={food.name}
+              calPerGram={food.caloriesPerGram}
+              setMeal={setMeal}
+            />
+          ))}
+      </div>
+    </div>
+  )
+}
 export default Home
