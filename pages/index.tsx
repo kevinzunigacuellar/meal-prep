@@ -1,5 +1,7 @@
 import type { NextPage } from 'next'
-import { useState, useMemo, useContext, createContext, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import FoodCard from '../components/FoodCard'
+import { UnitsContext } from '../context/UnitsContext'
 
 const food = [
   {
@@ -30,11 +32,9 @@ interface Meal {
   calories: number
 }
 
-interface FoodProps {
-  name: string
-  calPerGram: number
-  setMeal: React.Dispatch<React.SetStateAction<Meal[]>>
-}
+const gramsToOunces = (grams: number) => grams / 28.3495
+
+const OuncesToGrams = (ounces: number) => ounces * 28.3495
 
 const Home: NextPage = () => {
   const [filter, setFilter] = useState('')
@@ -45,12 +45,22 @@ const Home: NextPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilter(e.target.value.toLowerCase())
   }
-  // todo: fix unit converter in meals
+  // todo: fix unit converter in meals (hacky fix)
   useEffect(() => {
     if (units === 'oz') {
       setMeal(meal =>
         meal.map(mealItem => {
-          const weight = mealItem.weight / 28.35
+          const weight = gramsToOunces(mealItem.weight)
+          return {
+            ...mealItem,
+            weight,
+          }
+        })
+      )
+    } else {
+      setMeal(meal =>
+        meal.map(mealItem => {
+          const weight = OuncesToGrams(mealItem.weight)
           return {
             ...mealItem,
             weight,
@@ -69,7 +79,7 @@ const Home: NextPage = () => {
   }
   return (
     <div>
-      <UnitsContext.Provider value={units}>
+      <UnitsContext.Provider value={{ units }}>
         <input type="text" onChange={handleChange} />
         <select name="units" id="units" onChange={handleSelect}>
           <option value="g">grams</option>
@@ -81,17 +91,23 @@ const Home: NextPage = () => {
           {foodList
             .filter(food => food.name.toLowerCase().includes(filter))
             .map((food, i) => (
-              <Food key={i} name={food.name} calPerGram={food.caloriesPerGram} setMeal={setMeal} />
+              <FoodCard
+                key={i}
+                name={food.name}
+                calPerGram={food.caloriesPerGram}
+                setMeal={setMeal}
+              />
             ))}
         </ul>
         <h1>Meal:</h1>
         <p>total calories: {totalCalories}cal</p>
+
         <div>
           {meal.map(meal => (
             <div key={meal.name}>
               <div>{meal.name}</div>
               <div>
-                {meal.weight} {units}
+                {meal.weight.toFixed(2)} {units}
               </div>
               <div>{meal.calories}cal</div>
             </div>
@@ -101,36 +117,5 @@ const Home: NextPage = () => {
     </div>
   )
 }
-
-const Food = ({ name, calPerGram, setMeal }: FoodProps) => {
-  const [weight, setWeight] = useState(100)
-  const units = useContext(UnitsContext)
-
-  const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setWeight(Number(e.target.value))
-  }
-
-  const calories = useMemo(() => {
-    if (units === 'g') {
-      return calPerGram * weight
-    }
-    return weight * calPerGram * 28.3495
-  }, [weight, calPerGram, units])
-
-  const addToMeal = () => {
-    setMeal((meal: Meal[]) => [...meal, { name, weight, calories }])
-  }
-  return (
-    <div>
-      <p>{name}</p>
-      <input type="number" value={weight} onChange={handleWeightChange} />
-      <p>{`${weight} ${units}`}</p>
-      <p>{calories}cal</p>
-      <button onClick={addToMeal}>add to meal</button>
-    </div>
-  )
-}
-
-const UnitsContext = createContext({})
 
 export default Home
