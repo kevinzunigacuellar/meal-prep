@@ -27,25 +27,27 @@ const FoodCard = ({ name, calPerGram, setMeal }: FoodProps) => {
     setMeal((meal: Meal[]) => [...meal, { name, weight, calories }])
   }
   return (
-    <div className="bg-white p-6 w-full sm:max-w-sm rounded-lg border flex flex-col gap-4">
-      <h2 className="text-xl font-semibold">{name}</h2>
+    <div className="bg-white p-6 w-full flex-shrink-0 sm:max-w-sm rounded-md border flex flex-col gap-4">
+      <h2 className="text-lg sm:text-xl font-semibold">{name}</h2>
       <div className="flex items-baseline gap-2 justify-between">
-        <label htmlFor="weight">
+        <div>
           <input
             value={weight}
             type="number"
             id="weight"
             onChange={handleWeightChange}
-            className="rounded-lg w-24 mr-2"
+            className="rounded-md w-20 mr-2"
           />
-          {`${units === 'g' ? 'grams' : 'ounces'}`}
-        </label>
-        <p>{calories} calories</p>
+          <label htmlFor="weight" className="text-sm">{`${
+            units === 'g' ? 'grams' : 'ounces'
+          }`}</label>
+        </div>
+        <p>{calories} cal</p>
       </div>
       <button
         onClick={addToMeal}
         type="button"
-        className="bg-zinc-900 text-white w-full py-2 rounded-lg"
+        className="bg-zinc-900 text-white w-full py-2 rounded-md"
       >
         Add to meal
       </button>
