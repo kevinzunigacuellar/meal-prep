@@ -1,36 +1,36 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import { useState, useMemo, useEffect, Dispatch, SetStateAction } from 'react'
-import FoodCard from '../components/FoodCard'
-import { UnitsContext } from '../context/UnitsContext'
+import type { NextPage } from "next"
+import Head from "next/head"
+import { useState, useMemo, useEffect, Dispatch, SetStateAction } from "react"
+import FoodCard from "../components/FoodCard"
+import { UnitsContext } from "../context/UnitsContext"
 
 const food = [
   {
-    name: 'Chicken breast',
+    name: "Chicken breast",
     caloriesPerGram: 1.65,
   },
   {
-    name: 'Chicken thigh',
+    name: "Chicken thigh",
     caloriesPerGram: 1.77,
   },
   {
-    name: 'Salmon',
+    name: "Salmon",
     caloriesPerGram: 2.08,
   },
   {
-    name: 'Rice',
+    name: "Rice",
     caloriesPerGram: 1.3,
   },
   {
-    name: 'Kiwi',
+    name: "Kiwi",
     caloriesPerGram: 0.61,
   },
   {
-    name: 'Strawberry',
+    name: "Strawberry",
     caloriesPerGram: 0.33,
   },
   {
-    name: 'Brocolli',
+    name: "Brocolli",
     caloriesPerGram: 0.34,
   },
 ]
@@ -47,13 +47,13 @@ const OuncesToGrams = (ounces: number) => ounces * 28.3495
 
 const Home: NextPage = () => {
   const [meal, setMeal] = useState<Meal[]>([])
-  const [units, setUnits] = useState('g')
+  const [units, setUnits] = useState("g")
 
   // todo: fix unit converter in meals (hacky fix)
   useEffect(() => {
-    if (units === 'oz') {
-      setMeal(meal =>
-        meal.map(mealItem => {
+    if (units === "oz") {
+      setMeal((meal) =>
+        meal.map((mealItem) => {
           const weight = gramsToOunces(mealItem.weight)
           return {
             ...mealItem,
@@ -62,8 +62,8 @@ const Home: NextPage = () => {
         })
       )
     } else {
-      setMeal(meal =>
-        meal.map(mealItem => {
+      setMeal((meal) =>
+        meal.map((mealItem) => {
           const weight = OuncesToGrams(mealItem.weight)
           return {
             ...mealItem,
@@ -75,7 +75,7 @@ const Home: NextPage = () => {
   }, [units])
 
   const handleDeleteMeal = (index: number) => {
-    setMeal(meals => meals.filter((_, i) => i !== index))
+    setMeal((meals) => meals.filter((_, i) => i !== index))
   }
 
   const totalCalories = useMemo(() => {
@@ -89,7 +89,9 @@ const Home: NextPage = () => {
       </Head>
       <UnitsContext.Provider value={{ units }}>
         <div className="lg:max-w-6xl lg:mx-auto p-4">
-          <h1 className="text-xl sm:text-4xl font-bold mb-6">🍤 Meal prep tool</h1>
+          <h1 className="text-xl sm:text-4xl font-bold mb-6">
+            🍤 Meal prep tool
+          </h1>
           <div className="grid grid-cols-1 lg:grid-cols-3 sm:gap-6" id="layout">
             <FoodList setMeal={setMeal} setUnits={setUnits} />
             <div className="col-span-2">
@@ -123,7 +125,7 @@ interface FoodListProps {
 }
 
 const FoodList = ({ setMeal, setUnits }: FoodListProps) => {
-  const [filter, setFilter] = useState('')
+  const [filter, setFilter] = useState("")
   const [foodList, setFoodList] = useState(food)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,15 +139,25 @@ const FoodList = ({ setMeal, setUnits }: FoodListProps) => {
   return (
     <div>
       <div className="flex gap-2 mb-4">
-        <input type="text" onChange={handleChange} value={filter} className="w-full rounded-md" />
-        <select name="units" id="units" onChange={handleSelect} className="w-26 rounded-md">
+        <input
+          type="text"
+          onChange={handleChange}
+          value={filter}
+          className="w-full rounded-md"
+        />
+        <select
+          name="units"
+          id="units"
+          onChange={handleSelect}
+          className="w-26 rounded-md"
+        >
           <option value="g">grams</option>
           <option value="oz">ounces</option>
         </select>
       </div>
       <div className="flex lg:flex-col gap-6 overflow-x-auto pb-4">
         {foodList
-          .filter(food => food.name.toLowerCase().includes(filter))
+          .filter((food) => food.name.toLowerCase().includes(filter))
           .map((food, i) => (
             <FoodCard
               key={i}

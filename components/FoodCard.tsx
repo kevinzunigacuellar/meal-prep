@@ -1,6 +1,6 @@
-import { useState, useMemo, useContext, ChangeEvent } from 'react'
-import { UnitsContext } from '../context/UnitsContext'
-import type { Meal } from '../types'
+import { useState, useMemo, useContext, ChangeEvent } from "react"
+import { UnitsContext } from "../context/UnitsContext"
+import type { Meal } from "../types"
 
 interface FoodProps {
   name: string
@@ -17,7 +17,7 @@ const FoodCard = ({ name, calPerGram, setMeal }: FoodProps) => {
   }
 
   const calories = useMemo(() => {
-    if (units === 'g') {
+    if (units === "g") {
       return Math.ceil(weight * calPerGram)
     }
     return Math.ceil(weight * calPerGram * 28.3495)
@@ -39,7 +39,7 @@ const FoodCard = ({ name, calPerGram, setMeal }: FoodProps) => {
             className="rounded-md w-20 mr-2"
           />
           <label htmlFor="weight" className="text-sm">{`${
-            units === 'g' ? 'grams' : 'ounces'
+            units === "g" ? "grams" : "ounces"
           }`}</label>
         </div>
         <p>{calories} cal</p>
